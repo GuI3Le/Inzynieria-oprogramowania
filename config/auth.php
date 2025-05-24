@@ -43,7 +43,7 @@ return [
 
         'customer'=>[
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => 'customers',
         ],
 
         'employee'=>[
@@ -117,7 +117,15 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+
+        'customers' => [
+            'provider' => 'customers',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ]
     ],
+
 
     /*
     |--------------------------------------------------------------------------
