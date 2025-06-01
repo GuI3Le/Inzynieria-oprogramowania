@@ -58,15 +58,25 @@ class CustomerAuthController extends Controller
 
     public function register(Request $request)
     {
+        $validatedData = $request->validate([
+            'name' => ['required', 'min:3', 'max:50'],
+            'first_name' => ['required'],
+            'last_name' => ['required'],
+            'email' => ['required','unique:customers,email','max:255'],
+            'phone' => ['required', 'min:9'],
+            'birth_date' => ['required','date'],
+            "password" => ['required','string','min:8','confirmed'],
+        ]);
+
         $customer = Customer::create([
-            'name' => strstr($request->email,'@',true),
-            'last_name' => 'lastname',
-            'first_name' => 'firstname',
-            'email' => $request->email,
-            'phone' => '123456789',
+            'name' => $validatedData['name'],
+            'last_name' => $validatedData['last_name'],
+            'first_name' => $validatedData['first_name'],
+            'email' => $validatedData['email'],
+            'phone' => $validatedData['phone'],
             'sign_up_date' => Date('Y-m-d'),
-            'birth_date' => Date('Y-m-d'),
-            'password' => Hash::make($request->password),
+            'birth_date' => $validatedData['birth_date'],
+            'password' => Hash::make($validatedData['password']),
         ]);
         return redirect('/signin');
     }
