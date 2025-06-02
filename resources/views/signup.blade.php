@@ -8,10 +8,14 @@
 <h1>Rejestracja</h1>
 <form action="/signup" method="post">
 @csrf
+    <input type="text" name="name" placeholder="Nazwa użytkownika">
     <input type="text" name="first_name" placeholder="Imię">
     <input type="text" name="last_name" placeholder="Nazwisko">
-    <input type="email" name="email" id="" placeholder="email">
-    <input type="password" name="password" id="" placeholder="password">
+    <input type="email" name="email" placeholder="email">
+    <input type="number" name="phone" placeholder="telefon">
+    <input type="date" name="birth_date">
+    <input type="password" name="password" placeholder="hasło">
+    <input type="password" name="password_confirmation" placeholder="powtórz hasło">
     <input type="submit" value="Zarejestruj się">
 </form>
 </body>
