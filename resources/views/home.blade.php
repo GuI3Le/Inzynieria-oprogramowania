@@ -9,7 +9,9 @@
 </head>
 <body>
 <h1>Witaj na stronie głównej</h1>
-<a href="{{route('signup')}}">Rejestracja</a><br>
-<a href="{{route('signin')}}">Logowanie</a>
+<a href="{{route('customer.register')}}">Rejestracja</a><br>
+<a href="{{route('customer.login')}}">Logowanie</a>
+<a href="{{route('employee.showRegistrationForm')}}">Dodawanie pracownika</a>
+<a href="{{route('employee.showLoginForm')}}">Pracownik</a>
 </body>
 </html>
