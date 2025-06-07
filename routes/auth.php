@@ -32,21 +32,5 @@ Route::middleware('guest')->group(function () {
 //        ->name('password.confirm');
 //});
 
-Route::prefix('customer')->group(function () {
-    // Guest routes (not authenticated)
-    Route::middleware('guest:customer')->group(function () {
-        Route::get('/login', [CustomerAuthController::class, 'showLoginForm'])->name('customer.login');
-        Route::post('/login', [CustomerAuthController::class, 'login']);
-        Route::get('/register', [CustomerAuthController::class, 'showRegistrationForm'])->name('customer.register');
-        Route::post('/register', [CustomerAuthController::class, 'register']);
-    });
-
-    // Authenticated customer routes
-    Route::middleware('auth:customer')->group(function () {
-        Route::get('/dashboard', [CustomerAuthController::class, 'dashboard'])->name('customer.dashboard');
-        Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout');
-    });
-});
-
 Route::post('logout', App\Livewire\Actions\Logout::class)
     ->name('logout');
