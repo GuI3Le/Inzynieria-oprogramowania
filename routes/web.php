@@ -1,48 +1,51 @@
 <?php
 
 use App\Http\Controllers\Auth\CustomerAuthController;
+use App\Http\Controllers\Auth\EmployeeAuthController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
+// Home route
 Route::get('/', function () {
     return view('home');
 })->name('home');
 
-Route::get('/signup', function () {
-    return view('signup');
-})->name('signup');
+// Customer routes
+Route::prefix('customer')->group(function () {
+    // Guest routes (not authenticated)
+    Route::middleware('guest:customer')->group(function () {
+        Route::get('/login', [CustomerAuthController::class, 'showLoginForm'])->name('customer.login');
+        Route::post('/login', [CustomerAuthController::class, 'login']);
+        Route::get('/register', [CustomerAuthController::class, 'showRegistrationForm'])->name('customer.register');
+        Route::post('/register', [CustomerAuthController::class, 'register']);
+    });
 
-Route::get('/signin', function () {
-    return view('signin');
-})->name('signin');
+    // Authenticated customer routes
+    Route::middleware('auth:customer')->group(function () {
+        Route::get('/dashboard', [CustomerAuthController::class, 'dashboard'])->name('customer.dashboard');
+        Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout');
+    });
+});
 
-Route::post('/signin', [CustomerAuthController::class, 'login'])->name('signin');
+Route::prefix('employee')->group(function () {
+    Route::middleware('guest:employee')->group(function () {
+        Route::get('/login', [EmployeeAuthController::class, 'showLoginForm'])->name('employee.showLoginForm');
+        Route::post('/login', [EmployeeAuthController::class, 'login'])->name('employee.submitLogin');
+        Route::get('/register', [EmployeeAuthController::class, 'showRegistrationForm'])->name('employee.showRegistrationForm');
+        Route::post('/register', [EmployeeAuthController::class, 'register'])->name('employee.register.submit');
+    });
 
-Route::post('/signup', [CustomerAuthController::class, 'register'])->name('signup');
-
-Route::get('/customer/dashboard', [CustomerAuthController::class, 'dashboard'])->name('customer.dashboard');
-
-//Route::view('/signup', 'signup');
-
-//Route::middleware('auth:customer')->group(function () {
-//    Route::get('/customer/dashboard', function (){
-//        return view('/customer/dashboard');
-//    })->name('dashboard');
-//    Route::get('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
-//});
-
-//Route::view('dashboard', '/customer/dashboard')
-//    ->middleware(['auth', 'verified'])
-//    ->name('dashboard');
+    Route::middleware('auth:employee')->group(function () {
+        Route::get('/dashboard', [EmployeeAuthController::class, 'dashboard'])->name('employee.dashboard');
+        Route::post('/logout', [EmployeeAuthController::class, 'logout'])->name('employee.logout');
+    });
+});
 
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
-
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
     Volt::route('settings/password', 'settings.password')->name('settings.password');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 });
 
-//Route::middleware(['auth:customer'])->group(function () {})
-
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
