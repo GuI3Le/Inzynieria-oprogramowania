@@ -5,22 +5,18 @@ use App\Http\Controllers\Auth\EmployeeAuthController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
-// Home route
 Route::get('/', function () {
     return view('home');
 })->name('home');
 
-// Customer routes
 Route::prefix('customer')->group(function () {
-    // Guest routes (not authenticated)
     Route::middleware('guest:customer')->group(function () {
-        Route::get('/login', [CustomerAuthController::class, 'showLoginForm'])->name('customer.login');
-        Route::post('/login', [CustomerAuthController::class, 'login']);
-        Route::get('/register', [CustomerAuthController::class, 'showRegistrationForm'])->name('customer.register');
-        Route::post('/register', [CustomerAuthController::class, 'register']);
+        Route::get('/login', [CustomerAuthController::class, 'showLoginForm'])->name('customer.showLoginForm');
+        Route::post('/login', [CustomerAuthController::class, 'login'])->name('customer.submitLogin');
+        Route::get('/register', [CustomerAuthController::class, 'showRegistrationForm'])->name('customer.showRegistrationForm');
+        Route::post('/register', [CustomerAuthController::class, 'register'])->name('customer.submitRegistration');
     });
 
-    // Authenticated customer routes
     Route::middleware('auth:customer')->group(function () {
         Route::get('/dashboard', [CustomerAuthController::class, 'dashboard'])->name('customer.dashboard');
         Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout');

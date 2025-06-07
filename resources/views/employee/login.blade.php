@@ -10,8 +10,8 @@
 <body>
 <form action="{{route('employee.submitLogin')}}" method="post">
     @csrf
-    <input type="email" name="email" id="" placeholder="email" value="anowak@profit.com">
-    <input type="password" name="password" id="" placeholder="hasło" value="anowak">
+    <input type="email" name="email" id="" placeholder="email">
+    <input type="password" name="password" id="" placeholder="hasło">
     <input type="submit" value="Zaloguj">
 </form>
 </body>

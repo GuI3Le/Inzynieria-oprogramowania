@@ -16,20 +16,17 @@ class EmployeeAuthController extends Controller
     {
         return view('employee.login');
     }
+
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
-        if (Auth::guard('employee')->attempt($credentials,$request->boolean('remember'))) {
+        $credentials = $request->validate(['email' => ['required', 'email'], 'password' => ['required'],]);
+        if (Auth::guard('employee')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
             return redirect()->intended(route('employee.dashboard'));
         }
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+        return back()->withErrors(['email' => 'The provided credentials do not match our records.',])->onlyInput('email');
     }
+
     public function logout(Request $request)
     {
         Auth::guard('employee')->logout();
@@ -37,16 +34,13 @@ class EmployeeAuthController extends Controller
         $request->session()->regenerateToken();
         return redirect('/');
     }
+
     public function dashboard()
     {
         $employee = Auth::guard('employee')->user();
-        // Get role name
         $role = Role::find($employee->role_id);
 
-        return view('employee.dashboard', [
-            'employee' => $employee,
-            'role' => $role
-        ]);
+        return view('employee.dashboard', ['employee' => $employee, 'role' => $role]);
     }
 
     public function showRegistrationForm()
@@ -57,15 +51,7 @@ class EmployeeAuthController extends Controller
 
     public function register(Request $request)
     {
-        $employee = Employee::create([
-//            'name' => strstr($request->email,'@',true),
-            'last_name' => $request->last_name,
-            'first_name' => $request->first_name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'role_id' => $request->role_id,
-            'password' => Hash::make($request->password),
-        ]);
+        Employee::create(['last_name' => $request->last_name, 'first_name' => $request->first_name, 'email' => $request->email, 'phone' => $request->phone, 'role_id' => $request->role_id, 'password' => Hash::make($request->password),]);
         return redirect()->route('employeeLogin');
     }
 }

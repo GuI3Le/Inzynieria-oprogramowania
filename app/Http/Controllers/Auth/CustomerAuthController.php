@@ -11,49 +11,30 @@ use Illuminate\Support\Facades\Log;
 
 class CustomerAuthController extends Controller
 {
+    public function showLoginForm()
+    {
+        return view('customer.login');
+    }
+
     public function login(Request $request)
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
-
-        Log::info('Customer login attempt for: ' . $request->email);
-        $customer = Customer::where('email', $request->email)->first();
-//        echo $customer;
         if (Auth::guard('customer')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended('/customer/dashboard');
+            return redirect()->intended(route('customer.dashboard'));
         }
 
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
         ])->onlyInput('email');
-//        if (!$customer) {
-//            Log::info('Customer not found: ' . $request->email);
-//            return back()->withErrors([
-//                'email' => 'No account found with this email address.',
-//            ])->onlyInput('email');
-//        }
-//
-//        if (!Hash::check($request->password, $customer->password)) {
-//            Log::info('Password check failed for: ' . $request->email);
-//            return back()->withErrors([
-//                'email' => 'The provided credentials do not match our records.',
-//            ])->onlyInput('email');
-//        }else{
-//            echo "Valid password";
-//        }
-////        echo $request;
-//        Auth::guard('customer')->login($customer, $request->boolean('remember'));
-//        if(Auth::guard('customer')->check()){
-//            $request->session()->regenerate();
-//            echo "Valid password";
-//            return redirect()->intended('/customer/dashboard');
-//        }
-//        return back()->withErrors([
-//            'email' => 'The provided credentials do not match our records.',
-//        ])->onlyInput('email');
+    }
+
+    public function showRegistrationForm()
+    {
+        return view('customer.register');
     }
 
     public function register(Request $request)
@@ -62,13 +43,13 @@ class CustomerAuthController extends Controller
             'name' => ['required', 'min:3', 'max:50'],
             'first_name' => ['required'],
             'last_name' => ['required'],
-            'email' => ['required','unique:customers,email','max:255'],
+            'email' => ['required', 'unique:customers,email', 'max:255'],
             'phone' => ['required', 'min:9'],
-            'birth_date' => ['required','date'],
-            "password" => ['required','string','min:8','confirmed'],
+            'birth_date' => ['required', 'date'],
+            "password" => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        $customer = Customer::create([
+        Customer::create([
             'name' => $validatedData['name'],
             'last_name' => $validatedData['last_name'],
             'first_name' => $validatedData['first_name'],
@@ -78,11 +59,23 @@ class CustomerAuthController extends Controller
             'birth_date' => $validatedData['birth_date'],
             'password' => Hash::make($validatedData['password']),
         ]);
-        return redirect('/signin');
+        return redirect()->route('customer.showLoginForm');
     }
 
     public function dashboard()
     {
-        return view('customer.dashboard');
+        $customer = Auth::guard('customer')->user();
+        return view('customer.dashboard',
+            [
+                'customer' => $customer
+            ]);
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::guard('customer')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('customer.showLoginForm');
     }
 }

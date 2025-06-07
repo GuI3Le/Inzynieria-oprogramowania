@@ -6,7 +6,7 @@
 </head>
 <body>
 <h1>Logowanie</h1>
-<form action="/signin" method="post">
+<form action="{{route('customer.submitLogin')}}" method="post">
     @csrf
     <input type="email" name="email" id="" placeholder="email">
     <input type="password" name="password" id="" placeholder="hasło">

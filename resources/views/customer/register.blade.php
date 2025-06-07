@@ -6,8 +6,8 @@
 </head>
 <body>
 <h1>Rejestracja</h1>
-<form action="/signup" method="post">
-@csrf
+<form action="{{route('customer.submitRegistration')}}" method="post">
+    @csrf
     <input type="text" name="name" placeholder="Nazwa użytkownika">
     <input type="text" name="first_name" placeholder="Imię">
     <input type="text" name="last_name" placeholder="Nazwisko">
