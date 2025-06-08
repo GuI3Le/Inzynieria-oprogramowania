@@ -8,6 +8,7 @@ use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\FitnessClass;
 
 /**
  * Class EmployeeAuthController
@@ -99,5 +100,53 @@ class EmployeeAuthController extends Controller
             'role_id' => $request->role_id,
             'password' => $request->password]);
         return redirect()->route('employee.showLoginForm');
+    }
+
+    public function schedule()
+    {
+        $classes = FitnessClass::with('employee')
+            ->orderBy('scheduled_time')
+            ->get();
+        
+        $employee = Auth::guard('employee')->user();
+
+        // Create a grid of classes organized by day and hour
+        $schedule = [];
+        $hours = range(7, 19); // Hours from 7 to 19
+        $days = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'];
+        
+        // Initialize the schedule grid
+        foreach ($hours as $hour) {
+            $schedule[$hour] = [];
+            foreach ($days as $day) {
+                $schedule[$hour][$day] = null;
+            }
+        }
+
+        // Fill in the classes
+        foreach ($classes as $class) {
+            $date = \Carbon\Carbon::parse($class->scheduled_time);
+            $hour = $date->hour;
+            
+            // Map English day names to Polish
+            $dayMap = [
+                'Monday' => 'Poniedziałek',
+                'Tuesday' => 'Wtorek',
+                'Wednesday' => 'Środa',
+                'Thursday' => 'Czwartek',
+                'Friday' => 'Piątek',
+                'Saturday' => 'Sobota',
+                'Sunday' => 'Niedziela'
+            ];
+            
+            $day = $dayMap[$date->format('l')];
+            
+            // Only add classes within our time range
+            if ($hour >= 7 && $hour <= 19) {
+                $schedule[$hour][$day] = $class;
+            }
+        }
+
+        return view('employee.schedule', compact('schedule', 'employee', 'days', 'hours'));
     }
 }

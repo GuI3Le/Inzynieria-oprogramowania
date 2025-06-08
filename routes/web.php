@@ -37,6 +37,7 @@ Route::prefix('employee')->group(function () {
 
     Route::middleware('auth:employee')->group(function () {
         Route::get('/dashboard', [EmployeeAuthController::class, 'dashboard'])->name('employee.dashboard');
+        Route::get('/schedule', [EmployeeAuthController::class, 'schedule'])->name('employee.schedule');
         Route::post('/logout', [EmployeeAuthController::class, 'logout'])->name('employee.logout');
     });
 });
