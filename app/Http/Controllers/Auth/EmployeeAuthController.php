@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\FitnessClass;
+use Carbon\Carbon;
 
 /**
  * Class EmployeeAuthController
@@ -148,5 +149,110 @@ class EmployeeAuthController extends Controller
         }
 
         return view('employee.schedule', compact('schedule', 'employee', 'days', 'hours'));
+    }
+
+    public function addClass(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'day' => 'required|string',
+            'hour' => 'required|integer|min:7|max:19',
+        ]);
+
+        // Convert day name to date
+        $dayMap = [
+            'Poniedziałek' => 'Monday',
+            'Wtorek' => 'Tuesday',
+            'Środa' => 'Wednesday',
+            'Czwartek' => 'Thursday',
+            'Piątek' => 'Friday',
+            'Sobota' => 'Saturday',
+            'Niedziela' => 'Sunday'
+        ];
+
+        $date = Carbon::parse('next ' . $dayMap[$request->day]);
+        $date->hour = (int)$request->hour;
+        $date->minute = 0;
+        $date->second = 0;
+
+        $class = new FitnessClass();
+        $class->name = $request->name;
+        $class->description = 'Opis zajęć'; // You might want to add this as an input field
+        $class->available_spots = 20; // You might want to add this as an input field
+        $class->employee_id = Auth::guard('employee')->id();
+        $class->scheduled_time = $date;
+        $class->save();
+
+        return redirect()->route('employee.schedule')->with('success', 'Zajęcia zostały dodane pomyślnie.');
+    }
+
+    public function editClass(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'day' => 'required|string',
+            'hour' => 'required|integer|min:7|max:19',
+        ]);
+
+        $dayMap = [
+            'Poniedziałek' => 'Monday',
+            'Wtorek' => 'Tuesday',
+            'Środa' => 'Wednesday',
+            'Czwartek' => 'Thursday',
+            'Piątek' => 'Friday',
+            'Sobota' => 'Saturday',
+            'Niedziela' => 'Sunday'
+        ];
+
+        $date = Carbon::parse('next ' . $dayMap[$request->day]);
+        $date->hour = (int)$request->hour;
+        $date->minute = 0;
+        $date->second = 0;
+
+        $class = FitnessClass::where('scheduled_time', $date)
+            ->where('employee_id', Auth::guard('employee')->id())
+            ->first();
+
+        if ($class) {
+            $class->name = $request->name;
+            $class->save();
+            return redirect()->route('employee.schedule')->with('success', 'Zajęcia zostały zaktualizowane pomyślnie.');
+        }
+
+        return redirect()->route('employee.schedule')->with('error', 'Nie znaleziono zajęć do edycji.');
+    }
+
+    public function deleteClass(Request $request)
+    {
+        $request->validate([
+            'day' => 'required|string',
+            'hour' => 'required|integer|min:7|max:19',
+        ]);
+
+        $dayMap = [
+            'Poniedziałek' => 'Monday',
+            'Wtorek' => 'Tuesday',
+            'Środa' => 'Wednesday',
+            'Czwartek' => 'Thursday',
+            'Piątek' => 'Friday',
+            'Sobota' => 'Saturday',
+            'Niedziela' => 'Sunday'
+        ];
+
+        $date = Carbon::parse('next ' . $dayMap[$request->day]);
+        $date->hour = (int)$request->hour;
+        $date->minute = 0;
+        $date->second = 0;
+
+        $class = FitnessClass::where('scheduled_time', $date)
+            ->where('employee_id', Auth::guard('employee')->id())
+            ->first();
+
+        if ($class) {
+            $class->delete();
+            return redirect()->route('employee.schedule')->with('success', 'Zajęcia zostały usunięte pomyślnie.');
+        }
+
+        return redirect()->route('employee.schedule')->with('error', 'Nie znaleziono zajęć do usunięcia.');
     }
 }

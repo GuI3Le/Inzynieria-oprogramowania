@@ -38,6 +38,9 @@ Route::prefix('employee')->group(function () {
     Route::middleware('auth:employee')->group(function () {
         Route::get('/dashboard', [EmployeeAuthController::class, 'dashboard'])->name('employee.dashboard');
         Route::get('/schedule', [EmployeeAuthController::class, 'schedule'])->name('employee.schedule');
+        Route::post('/schedule/add', [EmployeeAuthController::class, 'addClass'])->name('employee.schedule.add');
+        Route::post('/schedule/edit', [EmployeeAuthController::class, 'editClass'])->name('employee.schedule.edit');
+        Route::post('/schedule/delete', [EmployeeAuthController::class, 'deleteClass'])->name('employee.schedule.delete');
         Route::post('/logout', [EmployeeAuthController::class, 'logout'])->name('employee.logout');
     });
 });
