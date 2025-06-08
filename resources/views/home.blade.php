@@ -17,10 +17,10 @@
         </div>
     </div>
     <div class="w-full h-7/10 grid grid-cols-2 grid-rows-2 place-items-center text-center px-40">
-        <a href="{{route('customer.showRegistrationForm')}}" class="inline-block bg-blue-800 py-20 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Rejestracja klienta</a>
-        <a href="{{route('customer.showLoginForm')}}" class="inline-block bg-blue-800 py-20 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Logowanie klienta</a>
-        <a href="{{route('employee.showRegistrationForm')}}" class="inline-block bg-blue-800 py-20 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Dodawanie pracownika</a>
-        <a href="{{route('employee.showLoginForm')}}" class="inline-block bg-blue-800 py-20 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Logowanie pracownika</a>
+        <a href="{{route('customer.showRegistrationForm')}}" class="inline-block bg-blue-800 py-18 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-4xl">Rejestracja klienta</a>
+        <a href="{{route('customer.showLoginForm')}}" class="inline-block bg-blue-800 py-18 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-4xl">Logowanie klienta</a>
+        <a href="{{route('employee.showRegistrationForm')}}" class="inline-block bg-blue-800 py-18 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-4xl">Dodawanie pracownika</a>
+        <a href="{{route('employee.showLoginForm')}}" class="inline-block bg-blue-800 py-18 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-4xl">Logowanie pracownika</a>
     </div>
 </div>
 </body>

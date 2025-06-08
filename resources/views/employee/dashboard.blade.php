@@ -20,7 +20,7 @@
             <h1 class="inline-block text-5xl font-bold text-blue-800">Panel pracownika</h1>
         </div>
         <div class="flex w-1/4 h-auto justify-around items-center flex-row">
-            <a href="">Strona główna</a>
+            <a href="{{route('home')}}">Strona główna</a>
             <a href="">Konto {{strstr($employee->email,'@',true)}}</a>
             <form action="{{ route('employee.logout') }}" method="POST">
                 @csrf
@@ -31,16 +31,16 @@
     </div>
     <div class="w-full h-9/10 grid grid-cols-2 grid-rows-2 place-items-center text-center px-40">
         <a href="#"
-           class="inline-block bg-blue-800 py-28 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Zarządzanie
+           class="inline-block bg-blue-800 py-24 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Zarządzanie
             karnetami</a>
         <a href="#"
-           class="inline-block bg-blue-800 py-28 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Zarządzanie
+           class="inline-block bg-blue-800 py-24 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Zarządzanie
             kontami klientów</a>
         <a href="#"
-           class="inline-block bg-blue-800 py-28 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Zarządzanie
+           class="inline-block bg-blue-800 py-24 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Zarządzanie
             zajęciami</a>
         <a href="#"
-           class="inline-block bg-blue-800 py-28 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Statystyki
+           class="inline-block bg-blue-800 py-24 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Statystyki
             i raporty</a>
 
     </div>
