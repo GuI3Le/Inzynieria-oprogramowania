@@ -36,9 +36,9 @@
         <a href="#"
            class="inline-block bg-blue-800 py-24 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Zarządzanie
             kontami klientów</a>
-        <a href="#"
-           class="inline-block bg-blue-800 py-24 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Zarządzanie
-            zajęciami</a>
+        <a href="{{ route('employee.schedule') }}"
+           class="inline-block bg-blue-800 py-24 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Harmonogram
+            zajęć</a>
         <a href="#"
            class="inline-block bg-blue-800 py-24 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Statystyki
             i raporty</a>
