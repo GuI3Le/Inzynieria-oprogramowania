@@ -9,6 +9,10 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
+Route::view('dashboard', 'dashboard')
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
+
 Route::prefix('customer')->group(function () {
     Route::middleware('guest:customer')->group(function () {
         Route::get('/login', [CustomerAuthController::class, 'showLoginForm'])->name('customer.showLoginForm');

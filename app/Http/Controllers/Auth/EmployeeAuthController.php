@@ -88,7 +88,13 @@ class EmployeeAuthController extends Controller
      */
     public function register(Request $request)
     {
-        Employee::create(['last_name' => $request->last_name, 'first_name' => $request->first_name, 'email' => $request->email, 'phone' => $request->phone, 'role_id' => $request->role_id, 'password' => Hash::make($request->password),]);
-        return redirect()->route('employeeLogin');
+        Employee::create([
+            'last_name' => $request->last_name,
+            'first_name' => $request->first_name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'role_id' => $request->role_id,
+            'password' => $request->password]);
+        return redirect()->route('employee.showLoginForm');
     }
 }
