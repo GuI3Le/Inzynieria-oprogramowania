@@ -25,9 +25,6 @@ class EmployeeAuthController extends Controller
      */
     public function showLoginForm()
     {
-//        if (Auth::guard('employee')->check()) {
-//            return redirect()->route('employee.dashboard');
-//        }
         return view('employee.login');
     }
 
@@ -103,20 +100,23 @@ class EmployeeAuthController extends Controller
         return redirect()->route('employee.showLoginForm');
     }
 
+    /**
+     * Handles schedule page displaying.
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|object
+     */
     public function schedule()
     {
         $classes = FitnessClass::with('employee')
             ->orderBy('scheduled_time')
             ->get();
-        
+
         $employee = Auth::guard('employee')->user();
 
-        // Create a grid of classes organized by day and hour
         $schedule = [];
-        $hours = range(7, 19); // Hours from 7 to 19
+        $hours = range(7, 19);
         $days = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'];
-        
-        // Initialize the schedule grid
+
         foreach ($hours as $hour) {
             $schedule[$hour] = [];
             foreach ($days as $day) {
@@ -124,12 +124,10 @@ class EmployeeAuthController extends Controller
             }
         }
 
-        // Fill in the classes
         foreach ($classes as $class) {
             $date = \Carbon\Carbon::parse($class->scheduled_time);
             $hour = $date->hour;
-            
-            // Map English day names to Polish
+
             $dayMap = [
                 'Monday' => 'Poniedziałek',
                 'Tuesday' => 'Wtorek',
@@ -139,10 +137,9 @@ class EmployeeAuthController extends Controller
                 'Saturday' => 'Sobota',
                 'Sunday' => 'Niedziela'
             ];
-            
+
             $day = $dayMap[$date->format('l')];
-            
-            // Only add classes within our time range
+
             if ($hour >= 7 && $hour <= 19) {
                 $schedule[$hour][$day] = $class;
             }
@@ -151,6 +148,12 @@ class EmployeeAuthController extends Controller
         return view('employee.schedule', compact('schedule', 'employee', 'days', 'hours'));
     }
 
+    /**
+     * Adds fitness class to database.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function addClass(Request $request)
     {
         $request->validate([
@@ -159,7 +162,6 @@ class EmployeeAuthController extends Controller
             'hour' => 'required|integer|min:7|max:19',
         ]);
 
-        // Convert day name to date
         $dayMap = [
             'Poniedziałek' => 'Monday',
             'Wtorek' => 'Tuesday',
@@ -177,8 +179,8 @@ class EmployeeAuthController extends Controller
 
         $class = new FitnessClass();
         $class->name = $request->name;
-        $class->description = 'Opis zajęć'; // You might want to add this as an input field
-        $class->available_spots = 20; // You might want to add this as an input field
+        $class->description = 'Opis zajęć';
+        $class->available_spots = 20;
         $class->employee_id = Auth::guard('employee')->id();
         $class->scheduled_time = $date;
         $class->save();
@@ -186,6 +188,12 @@ class EmployeeAuthController extends Controller
         return redirect()->route('employee.schedule')->with('success', 'Zajęcia zostały dodane pomyślnie.');
     }
 
+    /**
+     * Edits fitness class data.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function editClass(Request $request)
     {
         $request->validate([
@@ -222,6 +230,12 @@ class EmployeeAuthController extends Controller
         return redirect()->route('employee.schedule')->with('error', 'Nie znaleziono zajęć do edycji.');
     }
 
+    /**
+     * Deletes fitness class.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function deleteClass(Request $request)
     {
         $request->validate([
