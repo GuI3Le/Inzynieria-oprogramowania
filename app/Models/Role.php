@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Role
- *
+ * 
  * Represents roles that are assigned to the employee.
  *
  * @property int $id

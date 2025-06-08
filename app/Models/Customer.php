@@ -9,7 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
  * Class Customer
- *
+ * 
  * Represents a customer user.
  *
  * @property int $id

@@ -10,9 +10,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 
 /**
- *  Class Employee
- *
- *  Represents an employee user.
+ * Class Employee
+ * 
+ * Represents an employee user.
  *
  * @property int $id
  * @property string $first_name
