@@ -23,8 +23,18 @@ Route::prefix('customer')->group(function () {
 
     Route::middleware('auth:customer')->group(function () {
         Route::get('/dashboard', [CustomerAuthController::class, 'dashboard'])->name('customer.dashboard');
-        Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout');
+        Route::post('/logout', [EmployeeAuthController::class, 'logout'])->name('customer.logout');
+        Route::get('/schedule', [CustomerAuthController::class, 'schedule'])->name('customer.schedule');
+        Route::post('/class/register/{classId}', [CustomerAuthController::class, 'registerForClass'])
+    ->name('customer.class.register')
+    ->middleware('auth:customer');
+        Route::delete('/class/unregister/{classId}', [CustomerAuthController::class, 'unregisterFromClass'])
+    ->name('customer.class.unregister')
+    ->middleware('auth:customer');
+        Route::get('/customer/profile/edit', [CustomerAuthController::class, 'editProfile'])->name('customer.profile.edit');
+        Route::put('/customer/profile/update', [CustomerAuthController::class, 'updateProfile'])->name('customer.profile.update');
     });
+        Route::get('/customer/memberships', [CustomerAuthController::class, 'memberships'])->name('customer.memberships');
 });
 
 Route::prefix('employee')->group(function () {

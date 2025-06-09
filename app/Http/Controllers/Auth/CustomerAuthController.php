@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use App\Models\FitnessClass;
+use App\Models\ClassRegistration;
 
 /**
  * Class CustomerAuthController
@@ -47,6 +49,22 @@ class CustomerAuthController extends Controller
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
         ])->onlyInput('email');
+    }
+
+     /**
+     * Display the customer's memberships page.
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
+    public function memberships()
+    {
+        $customer = Auth::guard('customer')->user();
+
+        if (!$customer) {
+            return redirect()->route('customer.login')->with('error', 'Musisz być zalogowany, aby zobaczyć karnety.');
+        }
+
+        return view('customer.membership', compact('customer'));
     }
 
     /**
@@ -104,17 +122,203 @@ class CustomerAuthController extends Controller
             ]);
     }
 
+/**
+     * Handles schedule page displaying for customers.
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|object
+     */
+    public function schedule()
+    {
+        $classes = FitnessClass::with('employee')
+            ->orderBy('scheduled_time')
+            ->get();
+
+        $customer = Auth::guard('customer')->user();
+
+        $schedule = [];
+        $hours = range(7, 19);
+        $days = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'];
+
+        foreach ($hours as $hour) {
+            $schedule[$hour] = [];
+            foreach ($days as $day) {
+                $schedule[$hour][$day] = null;
+            }
+        }
+
+        foreach ($classes as $class) {
+            $date = \Carbon\Carbon::parse($class->scheduled_time);
+            $hour = $date->hour;
+
+            $dayMap = [
+                'Monday' => 'Poniedziałek',
+                'Tuesday' => 'Wtorek',
+                'Wednesday' => 'Środa',
+                'Thursday' => 'Czwartek',
+                'Friday' => 'Piątek',
+                'Saturday' => 'Sobota',
+                'Sunday' => 'Niedziela'
+            ];
+
+            $day = $dayMap[$date->format('l')];
+
+            if ($hour >= 7 && $hour <= 19) {
+                $schedule[$hour][$day] = $class;
+            }
+        }
+
+        return view('customer.schedule', compact('schedule', 'customer', 'days', 'hours'));
+    }
+
+    /**
+     * Display the customer profile edit form.
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
+    public function editProfile()
+    {
+        $customer = Auth::guard('customer')->user();
+
+        if (!$customer) {
+            return redirect()->route('customer.login')->with('error', 'Musisz być zalogowany, aby edytować profil.');
+        }
+
+        return view('customer.edit-profile', compact('customer'));
+    }
+
+    /**
+     * Update the customer profile.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateProfile(Request $request)
+    {
+        $customer = Auth::guard('customer')->user();
+
+        if (!$customer) {
+            return redirect()->route('customer.login')->with('error', 'Musisz być zalogowany, aby edytować profil.');
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:customers,email,' . $customer->id,
+            'phone' => 'required|numeric',
+            'birth_date' => 'required|date|before:today',
+            'password' => 'nullable|min:8|confirmed',
+        ]);
+
+        $data = [
+            'name' => $validated['name'],
+            'first_name' => $validated['first_name'],
+            'last_name' => $validated['last_name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'birth_date' => $validated['birth_date'],
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($validated['password']);
+        }
+
+        $customer->update($data);
+
+        return redirect()->route('customer.dashboard')->with('success', 'Profil zaktualizowany pomyślnie!');
+    }
+
+    /**
+     * Register customer for a fitness class.
+     *
+     * @param int $classId
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function registerForClass($classId)
+    {
+        $customer = Auth::guard('customer')->user();
+
+        if (!$customer) {
+            return redirect()->route('customer.schedule')->with('error', 'Musisz być zalogowany, aby się zapisać.');
+        }
+
+        $fitnessClass = FitnessClass::findOrFail($classId);
+
+        if ($fitnessClass->scheduled_time < now()) {
+            return redirect()->route('customer.schedule')->with('error', 'Nie można zapisać się na zajęcia z przeszłości.');
+        }
+
+        if ($fitnessClass->available_spots <= 0) {
+            return redirect()->route('customer.schedule')->with('error', 'Brak wolnych miejsc na te zajęcia.');
+        }
+
+    
+        $alreadyRegistered = ClassRegistration::where('customer_id', $customer->id)
+            ->where('fitness_class_id', $classId)
+            ->where('status', 'confirmed')
+            ->exists();
+
+        if ($alreadyRegistered) {
+            return redirect()->route('customer.schedule')->with('error', 'Jesteś już zapisany na te zajęcia.');
+        }
+
+    
+        ClassRegistration::create([
+            'customer_id' => $customer->id,
+            'fitness_class_id' => $classId,
+            'status' => 'confirmed',
+            'registration_date' => now(),
+        ]);
+
+        // Zmniejsz liczbę dostępnych miejsc
+        $fitnessClass->decrement('available_spots');
+
+        return redirect()->route('customer.schedule')->with('success', 'Zapisano na zajęcia pomyślnie!');
+    }
+
+    /**
+     * Unregister customer from a fitness class.
+     *
+     * @param int $classId
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function unregisterFromClass($classId)
+    {
+        $customer = Auth::guard('customer')->user();
+
+        if (!$customer) {
+            return redirect()->route('customer.schedule')->with('error', 'Musisz być zalogowany, aby się wypisać.');
+        }
+
+        $registration = ClassRegistration::where('customer_id', $customer->id)
+            ->where('fitness_class_id', $classId)
+            ->where('status', 'confirmed')
+            ->first();
+
+        if (!$registration) {
+            return redirect()->route('customer.schedule')->with('error', 'Nie jesteś zapisany na te zajęcia.');
+        }
+
+     
+        $registration->update(['status' => 'cancelled']);
+
+      
+        FitnessClass::findOrFail($classId)->increment('available_spots');
+
+        return redirect()->route('customer.schedule')->with('success', 'Wypisano z zajęć pomyślnie!');
+    }
+
     /**
      * Logouts customer.
      *
      * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|object
      */
     public function logout(Request $request)
     {
         Auth::guard('customer')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('customer.showLoginForm');
+        return redirect('/');
     }
 }

@@ -1,79 +1,49 @@
-<html lang="pl">
+<!doctype html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Panel klienta</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        h1, h2 {
-            color: #333;
-        }
-
-        .user-info {
-            margin-bottom: 20px;
-        }
-
-        .buttons {
-            margin-top: 20px;
-        }
-
-        .buttons button {
-            margin-right: 10px;
-            padding: 10px 15px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-        }
-
-        .buttons button:hover {
-            background-color: #45a049;
-        }
-    </style>
+    @vite('resources/css/app.css')
 </head>
 <body>
-<h1>Panel klienta</h1>
-<h2>Witaj {{auth()->user()->email}}</h2>
-<div class="user-info">
-    <p><strong>Data i godzina:</strong> <span id="datetime"></span></p>
-</div>
-<div class="buttons">
-    <button onclick="window.location.href='/membership'">Karnet</button>
-    <button onclick="window.location.href='/dashboard'">Panel sterowania</button>
-    <button onclick="window.location.href='/settings'">Ustawienia konta</button>
-    <button onclick="window.location.href='/schedule'">Plan zajęć</button>
-</div>
-<form action="{{ route('customer.logout') }}" method="POST">
-    @csrf
-    <button type="submit">Wyloguj się</button>
-</form>
-<script>
-    function updateDateTime() {
-        const now = new Date();
-        const options = {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false,
-            timeZone: 'Europe/Warsaw'
-        };
-        const formattedDateTime = now.toLocaleString('pl-PL', options);
-        document.getElementById('datetime').textContent = formattedDateTime;
-    }
+<div class="flex h-screen justify-between items-center flex-col">
+    <div class="w-full h-1/12 flex items-center justify-between bg-gray-100 border-b-black">
+        {{--        <div class="flex w-full h-auto justify-around items-center flex-row">--}}
+        <div class="flex w-1/4 justify-start flex-row items-center">
+            <img src="{{asset('images/dumbbell.png')}}" alt="logo" class="inline-block object-contain h-32">
+            <a href="{{route('home')}}" class="inline-block text-4xl font-bold text-blue-800">ProFit</a>
+        </div>
+        <div>
+            <h1 class="inline-block text-5xl font-bold text-blue-800">Panel klienta</h1>
+        </div>
+        <div class="flex w-1/4 h-auto justify-around items-center flex-row">
+            <a href="{{route('home')}}">Strona główna</a>
+            <a href="">Konto {{strstr($customer->email,'@',true)}}</a>
+            <form action="{{ route('customer.logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="bg-blue-800 rounded-full w-30 text-white">Wyloguj się</button>
+            </form>
+        </div>
+        {{--        </div>--}}
+    </div>
+    <div class="w-full h-9/10 grid grid-cols-2 grid-rows-2 place-items-center text-center px-40">
+        <a href="{{ route('customer.memberships') }}"
+           class="inline-block bg-blue-800 py-24 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Karnet</a>
+        <a href="{{ $customer ? route('customer.profile.edit') : route('customer.login') }}"
+           class="inline-block bg-blue-800 py-24 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Dane osobowe</a>
+        <a href="{{ route('customer.schedule') }}"
+           class="inline-block bg-blue-800 py-24 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Harmonogram
+            zajęć</a>
+        <a href="#"
+           class="inline-block bg-blue-800 py-24 text-white text-center rounded-3xl hover:bg-blue-950 h-4/5 aspect-square transition text-5xl">Historia 
+            płatności</a>
 
-    updateDateTime();
-    setInterval(updateDateTime, 1000);
-</script>
+    </div>
+</div>
+
+
 </body>
 </html>
