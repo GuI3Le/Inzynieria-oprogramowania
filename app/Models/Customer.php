@@ -66,4 +66,16 @@ class Customer extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * Get the customer's initials.
+     *
+     * @return string
+     */
+    public function initials()
+    {
+        $firstInitial = !empty($this->first_name) ? mb_substr($this->first_name, 0, 1) : '';
+        $lastInitial = !empty($this->last_name) ? mb_substr($this->last_name, 0, 1) : '';
+        return strtoupper($firstInitial . $lastInitial);
+    }
 }
