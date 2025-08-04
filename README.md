@@ -45,6 +45,7 @@ npm install
 ```bash
 npm install -D tailwindcss postcss autoprefixer
 npx tailwindcss init -p
+```
 8. Konfiguracja tailwind.config.js
 ```js
 module.exports = {
